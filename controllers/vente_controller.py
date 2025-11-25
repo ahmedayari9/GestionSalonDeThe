@@ -2,9 +2,10 @@
 Contrôleur Vente - Logique métier des ventes
 """
 
-from models import VenteModel, ChargeModel
+from models import VenteModel, ChargeModel, ChargeFixeModel, SalaireModel
 from decimal import Decimal
 from datetime import date, timedelta
+from calendar import monthrange
 
 
 class VenteController:
@@ -13,6 +14,8 @@ class VenteController:
     def __init__(self):
         self.vente_model = VenteModel()
         self.charge_model = ChargeModel()
+        self.charge_fixe_model = ChargeFixeModel()
+        self.salaire_model = SalaireModel()
     
     def save_vente(self, date_vente, article_id, quantite):
         """Enregistrer une vente"""
@@ -43,19 +46,53 @@ class VenteController:
         
         benefice_brut = recette_brute - cout_achat
         
-        # Charges
+        # Charges journalières (dépenses du jour)
         total_charges = self.charge_model.get_total_by_date(date_vente)
         total_charges = Decimal(str(total_charges))
         
-        benefice_net = benefice_brut - total_charges
+        # Charges journalières mensuelles (salaires + charges fixes du mois / nb jours)
+        charges_journalieres_mensuelles = self._calculate_charges_journalieres_mensuelles(date_vente)
+        
+        # Bénéfice net = Bénéfice brut - Dépenses (sans charges journalières mensuelles)
+        benefice_net = benefice_brut - total_charges - charges_journalieres_mensuelles
         
         return {
             'recette_brute': recette_brute,
             'cout_achat': cout_achat,
             'benefice_brut': benefice_brut,
             'total_charges': total_charges,
+            'charges_journalieres_mensuelles': charges_journalieres_mensuelles,
             'benefice_net': benefice_net
         }
+    
+    def _calculate_charges_journalieres_mensuelles(self, date_vente):
+        """Calculer les charges journalières mensuelles (salaires + charges fixes / nb jours du mois)"""
+        # Récupérer le premier jour du mois
+        mois = date_vente.replace(day=1)
+        
+        # Nombre de jours dans le mois
+        nb_jours_mois = monthrange(date_vente.year, date_vente.month)[1]
+        
+        # Charges fixes du mois
+        charges_fixes = self.charge_fixe_model.get_by_month(mois)
+        total_charges_fixes = Decimal('0')
+        if charges_fixes:
+            champs_charges = ['loyer', 'electricite', 'eau', 'impot', 'municipalite', 'terrasse', 'internet', 'autres']
+            total_charges_fixes = sum(
+                Decimal(str(charges_fixes.get(champ, 0) or 0))
+                for champ in champs_charges
+            )
+        
+        # Salaires du mois
+        total_salaires = Decimal(str(self.salaire_model.get_total_by_month(mois) or 0))
+        
+        # Charges journalières = (charges fixes + salaires) / nb jours
+        if nb_jours_mois > 0:
+            charges_journalieres = (total_charges_fixes + total_salaires) / Decimal(str(nb_jours_mois))
+        else:
+            charges_journalieres = Decimal('0')
+        
+        return charges_journalieres
     
     def delete_jour(self, date_vente):
         """Supprimer toutes les ventes et charges d'un jour"""
