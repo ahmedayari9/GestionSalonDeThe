@@ -33,6 +33,7 @@ class VentesView(BaseView):
         self.cout_achat_var = tk.StringVar(value="0.00 DT")
         self.benefice_brut_var = tk.StringVar(value="0.00 DT")
         self.charges_var = tk.StringVar(value="0.00 DT")
+        self.charges_journalieres_var = tk.StringVar(value="0.00 DT")
         self.benefice_net_var = tk.StringVar(value="0.00 DT")
         
         # Appeler le constructeur parent (qui appelle setup_ui)
@@ -158,6 +159,10 @@ class VentesView(BaseView):
         
         ttk.Label(resume_frame, text="Dépenses", font=('Arial', 11)).grid(row=row, column=0, sticky='w', pady=10, padx=5)
         ttk.Label(resume_frame, textvariable=self.charges_var, font=('Arial', 11, 'bold'), foreground=COLORS['danger']).grid(row=row, column=1, sticky='e', pady=10, padx=5)
+        row += 1
+        
+        ttk.Label(resume_frame, text="Charges journalières", font=('Arial', 11)).grid(row=row, column=0, sticky='w', pady=10, padx=5)
+        ttk.Label(resume_frame, textvariable=self.charges_journalieres_var, font=('Arial', 11, 'bold'), foreground=COLORS['warning']).grid(row=row, column=1, sticky='e', pady=10, padx=5)
         row += 1
         
         ttk.Separator(resume_frame, orient='horizontal').grid(row=row, column=0, columnspan=2, sticky='ew', pady=20)
@@ -333,6 +338,7 @@ class VentesView(BaseView):
         self.cout_achat_var.set(format_currency(totaux['cout_achat']))
         self.benefice_brut_var.set(format_currency(totaux['benefice_brut']))
         self.charges_var.set(format_currency(totaux['total_charges']))
+        self.charges_journalieres_var.set(format_currency(totaux['charges_journalieres_mensuelles']))
         self.benefice_net_var.set(format_currency(totaux['benefice_net']))
     
     def jour_precedent(self):
