@@ -77,19 +77,14 @@ class VenteController:
         charges_fixes = self.charge_fixe_model.get_by_month(mois)
         total_charges_fixes = Decimal('0')
         if charges_fixes:
-            total_charges_fixes = sum([
-                Decimal(str(charges_fixes.get('loyer', 0) or 0)),
-                Decimal(str(charges_fixes.get('electricite', 0) or 0)),
-                Decimal(str(charges_fixes.get('eau', 0) or 0)),
-                Decimal(str(charges_fixes.get('impot', 0) or 0)),
-                Decimal(str(charges_fixes.get('municipalite', 0) or 0)),
-                Decimal(str(charges_fixes.get('terrasse', 0) or 0)),
-                Decimal(str(charges_fixes.get('internet', 0) or 0)),
-                Decimal(str(charges_fixes.get('autres', 0) or 0))
-            ])
+            champs_charges = ['loyer', 'electricite', 'eau', 'impot', 'municipalite', 'terrasse', 'internet', 'autres']
+            total_charges_fixes = sum(
+                Decimal(str(charges_fixes.get(champ, 0) or 0))
+                for champ in champs_charges
+            )
         
         # Salaires du mois
-        total_salaires = self.salaire_model.get_total_by_month(mois)
+        total_salaires = Decimal(str(self.salaire_model.get_total_by_month(mois) or 0))
         
         # Charges journalières = (charges fixes + salaires) / nb jours
         if nb_jours_mois > 0:
