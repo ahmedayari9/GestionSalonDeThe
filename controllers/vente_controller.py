@@ -53,8 +53,8 @@ class VenteController:
         # Charges journalières mensuelles (salaires + charges fixes du mois / nb jours)
         charges_journalieres_mensuelles = self._calculate_charges_journalieres_mensuelles(date_vente)
         
-        # Bénéfice net = Bénéfice brut - Dépenses (sans charges journalières mensuelles)
-        benefice_net = benefice_brut - total_charges
+        # Bénéfice net = Bénéfice brut - Dépenses - Charges journalières
+        benefice_net = benefice_brut - total_charges - charges_journalieres_mensuelles
         
         return {
             'recette_brute': recette_brute,
