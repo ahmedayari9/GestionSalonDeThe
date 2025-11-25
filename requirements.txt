@@ -1,0 +1,30 @@
+# Base de données
+mysql-connector-python==8.2.0
+
+# Interface graphique (inclus avec Python)
+# tkinter (standard library)
+
+# Utilitaires
+python-dotenv==1.0.0
+
+# Tests (optionnel)
+pytest==7.4.3
+pytest-cov==4.1.0
+
+# Export PDF (optionnel)
+reportlab==4.0.7
+
+# Graphiques (optionnel)
+# matplotlib==3.8.2
+
+# Utilitaires
+python-dotenv==1.0.0
+
+# Installation Windows
+pywin32==306
+winshell==0.6
+psutil==5.9.6
+
+# Tests (optionnel)
+pytest==7.4.3
+pytest-cov==4.1.0
